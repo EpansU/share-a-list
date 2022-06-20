@@ -1,0 +1,11 @@
+<!DOCTYPE>
+<html>
+		<head> <Title> Share a List! </Title> </html>
+<body>
+						<script>
+								let ws = new WebSocket("ws://localhost:8080");
+								ws.addEventListener('open', function(event) {
+																		ws.send(JSON.stringify({messageType: 'Hello Server'}))})
+						</script>
+</body>
+</html>
