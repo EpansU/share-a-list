@@ -13,6 +13,7 @@ func main() {
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
 	var upgrader = websocket.Upgrader{}
+	upgrader.CheckOrigin = checkOrigin
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -24,7 +25,12 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error reading message: ", err)
 		return
 	}
+	log.Println("Message type: ", messageType)
 	if err := conn.WriteMessage(messageType, p); err != nil {
 		log.Println("Error writing message: ", err)
 	}
+}
+
+func checkOrigin(r *http.Request) bool {
+	return true
 }
