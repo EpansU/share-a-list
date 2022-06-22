@@ -20,14 +20,20 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error upgrading connection", err)
 		return
 	}
-	messageType, p, err := conn.ReadMessage()
-	if err != nil {
-		log.Println("Error reading message: ", err)
-		return
-	}
-	log.Println("Message type: ", messageType)
-	if err := conn.WriteMessage(messageType, p); err != nil {
-		log.Println("Error writing message: ", err)
+	defer conn.Close()
+
+	for {
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Error reading message: ", err)
+			break
+		}
+		log.Println("Message type: ", messageType)
+		log.Println("Message: ", p)
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			log.Println("Error writing message: ", err)
+			break
+		}
 	}
 }
 
