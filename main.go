@@ -1,10 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
+)
+
+type Item struct {
+	Name string
+}
+
+var (
+	connections = []*websocket.Conn{}
+	items       = []Item{}
 )
 
 func main() {
@@ -21,6 +31,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
+	connections = append(connections, conn)
 
 	for {
 		messageType, p, err := conn.ReadMessage()
@@ -30,9 +41,18 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Println("Message type: ", messageType)
 		log.Println("Message: ", p)
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println("Error writing message: ", err)
+		item := Item{string(p)}
+		items = append(items, item)
+		jsonMsg, err := json.Marshal(items)
+		if err != nil {
+			log.Println("Error encoding message: ", err)
 			break
+		}
+		for _, c := range connections {
+			if err := c.WriteMessage(messageType, jsonMsg); err != nil {
+				log.Println("Error writing message: ", err)
+				break
+			}
 		}
 	}
 }
