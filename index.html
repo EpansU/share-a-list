@@ -2,10 +2,17 @@
 <html>
 		<head> <Title> Share a List! </Title> </html>
 <body>
+		<button onclick=send()> Send </button>
 						<script>
 								let ws = new WebSocket("ws://localhost:8080");
 								ws.addEventListener('open', function(event) {
-																		ws.send(JSON.stringify({messageType: 'Hello Server'}))})
+																		ws.send(JSON.stringify({messageType: 'Hello Server'}))});
+								ws.addEventListener('message', function(event) {
+																		console.log('Server says', JSON.parse(event.data))
+																})
+								function send() {
+																		ws.send(JSON.stringify({messageType: 'Sending a message'}));
+																}
 						</script>
 </body>
 </html>
